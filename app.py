@@ -77,13 +77,16 @@ def pil_to_bgr(pil_img, max_size=1280):
     return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
 
-def recognize_face(image_path):
+def recognize_face(image_input):
     if face_data is None or not face_data["embeddings"]:
         return {"name": "Unknown", "confidence": 0, "matched": False,
                 "message": "⚠️ No trained faces found! Run train.py first."}
 
     try:
-        pil_img = Image.open(image_path)
+        if isinstance(image_input, Image.Image):
+            pil_img = image_input
+        else:
+            pil_img = Image.open(image_input).convert("RGB")
         img_bgr = pil_to_bgr(pil_img)
         faces = face_app.get(img_bgr)
 
@@ -151,13 +154,11 @@ def recognize():
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
     file = request.files["image"]
-    temp_path = "static/temp_upload.jpg"
     try:
         img = Image.open(file.stream).convert("RGB")
-        img.save(temp_path, "JPEG")
+        return jsonify(recognize_face(img))
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
-    return jsonify(recognize_face(temp_path))
+        return jsonify({"error": f"Failed to process image: {str(e)}"}), 400
 
 
 @app.route("/recognize_base64", methods=["POST"])
@@ -166,14 +167,14 @@ def recognize_base64():
     if not data or "image" not in data:
         return jsonify({"error": "No image data"}), 400
     try:
-        image_data = data["image"].split(",")[1]
+        image_data = data["image"]
+        if "," in image_data:
+            image_data = image_data.split(",")[1]
         image_bytes = base64.b64decode(image_data)
         img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        temp_path = "static/temp_webcam.jpg"
-        img.save(temp_path, "JPEG")
+        return jsonify(recognize_face(img))
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
-    return jsonify(recognize_face(temp_path))
+        return jsonify({"error": f"Failed to decode image: {str(e)}"}), 400
 
 
 @app.route("/status")
