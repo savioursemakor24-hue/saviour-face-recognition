@@ -1,0 +1,26 @@
+[project]
+name = "saviour-face-reconition"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Stephen Swanzy", email = "swanzyak47@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "deepface>=0.0.105",
+    "flask>=3.1.3",
+    "insightface>=2.1",
+    "numpy>=2.5.4",
+    "onnxruntime>=1.32.0",
+    "opencv-python>=5.0.0.93",
+    "pillow>=13.0.0",
+    "tf-keras>=2.21.0",
+]
+
+[project.scripts]
+saviour-face-reconition = "saviour_face_reconition:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
