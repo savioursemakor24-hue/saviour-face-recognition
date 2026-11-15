@@ -1245,11 +1245,11 @@
     // Smart API Base Resolver (Works with Vercel, Render, or Localhost)
     function getApiBase() {
       const saved = localStorage.getItem('SAVIOUR_API_BASE');
-      if (saved !== null) return saved.trim().replace(/\/+$/, '');
+      if (saved !== null && saved.trim() !== '') return saved.trim().replace(/\/+$/, '');
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return '';
       }
-      return '';
+      return 'https://saviour-face-recognition.onrender.com';
     }
 
     function openApiModal() {
