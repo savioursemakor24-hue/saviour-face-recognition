@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0e17"/>
+      <stop offset="100%" stop-color="#151d30"/>
+    </linearGradient>
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#4facfe"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  
+  <!-- Subtle border -->
+  <rect x="12" y="12" width="488" height="488" rx="100" stroke="#00e5ff" stroke-width="3" stroke-opacity="0.3"/>
+
+  <!-- Biometric Corner Brackets (Face ID Reticle) -->
+  <g stroke="url(#cyan-glow)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <!-- Top-Left -->
+    <path d="M 64 160 L 64 84 A 20 20 0 0 1 84 64 L 160 64" />
+    <!-- Top-Right -->
+    <path d="M 352 64 L 428 64 A 20 20 0 0 1 448 84 L 448 160" />
+    <!-- Bottom-Left -->
+    <path d="M 64 352 L 64 428 A 20 20 0 0 0 84 448 L 160 448" />
+    <!-- Bottom-Right -->
+    <path d="M 352 448 L 428 448 A 20 20 0 0 0 448 428 L 448 352" />
+  </g>
+
+  <!-- Stylized Face Silhouette -->
+  <ellipse cx="256" cy="256" rx="90" ry="115" stroke="#38bdf8" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.9" />
+  
+  <!-- Eyes -->
+  <circle cx="210" cy="230" r="12" fill="#00e5ff" filter="url(#glow)"/>
+  <circle cx="302" cy="230" r="12" fill="#00e5ff" filter="url(#glow)"/>
+
+  <!-- Smile / Chin contour -->
+  <path d="M 220 295 Q 256 320 292 295" stroke="#00e5ff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.8"/>
+
+  <!-- Central Laser Scan Bar -->
+  <line x1="120" y1="256" x2="392" y2="256" stroke="#10b981" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="14" fill="#34d399" filter="url(#glow)"/>
+</svg>
