@@ -1,1658 +1,528 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Saviour AI · Biometric Facial Recognition</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg-dark: #080b12;
-      --bg-card: rgba(16, 22, 36, 0.75);
-      --bg-card-hover: rgba(22, 30, 49, 0.85);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-glow: rgba(0, 229, 255, 0.35);
-      --primary: #00e5ff;
-      --primary-gradient: linear-gradient(135deg, #00e5ff 0%, #3b82f6 50%, #8b5cf6 100%);
-      --accent-glow: rgba(0, 229, 255, 0.25);
-      --success: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.25);
-      --danger: #f43f5e;
-      --danger-glow: rgba(244, 63, 94, 0.25);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-    }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      font-family: var(--font-sans);
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 229, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(16, 22, 36, 0.5) 0%, transparent 100%);
-      background-attachment: fixed;
-    }
-
-    /* Ambient background grid */
-    .bg-grid {
-      position: fixed;
-      inset: 0;
-      background-size: 40px 40px;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Main Container */
-    .app-wrapper {
-      position: relative;
-      z-index: 1;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px 32px 48px;
-    }
-
-    /* Top Navigation Header */
-    header.navbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 28px;
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      margin-bottom: 28px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: var(--primary-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #000;
-      box-shadow: 0 0 20px var(--accent-glow);
-    }
-
-    .brand-icon svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .brand-text h1 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .brand-text span {
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      color: var(--primary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .status-pill {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      border-radius: 30px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      font-size: 0.8rem;
-      font-family: var(--font-mono);
-      color: #34d399;
-      transition: all 0.3s;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 12px #10b981;
-      animation: pulse-dot 2s infinite;
-    }
-
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    .icon-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      height: 40px;
-      padding: 0 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-family: var(--font-sans);
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .icon-btn:hover {
-      color: var(--primary);
-      border-color: var(--primary);
-      background: rgba(0, 229, 255, 0.08);
-    }
-
-    /* Telemetry Stats Bar */
-    .telemetry-bar {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .metric-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-
-    .metric-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 3px;
-      height: 100%;
-      background: var(--primary);
-      opacity: 0.7;
-    }
-
-    .metric-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .metric-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
-
-    .metric-value {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .metric-value small {
-      font-size: 0.75rem;
-      color: var(--primary);
-      font-family: var(--font-mono);
-      font-weight: 500;
-    }
-
-    /* Main Dashboard Grid */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 28px;
-    }
-
-    /* Left Console: Capture Studio */
-    .panel {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-subtle);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .panel-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .panel-title svg {
-      color: var(--primary);
-      width: 20px;
-      height: 20px;
-    }
-
-    /* Segmented Control Tabs */
-    .mode-tabs {
-      display: flex;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 4px;
-      border-radius: 14px;
-      border: 1px solid var(--border-subtle);
-      gap: 4px;
-    }
-
-    .tab-trigger {
-      padding: 8px 18px;
-      border-radius: 10px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 600;
-      font-family: var(--font-sans);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-
-    .tab-trigger.active {
-      background: var(--primary-gradient);
-      color: #000;
-      font-weight: 700;
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-
-    .tab-trigger:hover:not(.active) {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    /* Capture Workspace Areas */
-    .tab-content {
-      display: none;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .tab-content.active {
-      display: flex;
-    }
-
-    /* Drag & Drop Zone */
-    .drop-zone {
-      flex: 1;
-      min-height: 380px;
-      border: 2px dashed rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.015);
-      transition: all 0.3s;
-      padding: 32px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--primary);
-      background: rgba(0, 229, 255, 0.04);
-      box-shadow: inset 0 0 40px rgba(0, 229, 255, 0.05);
-    }
-
-    .drop-icon-wrap {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
-      background: rgba(0, 229, 255, 0.08);
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      transition: transform 0.3s;
-    }
-
-    .drop-zone:hover .drop-icon-wrap {
-      transform: scale(1.08) translateY(-4px);
-    }
-
-    .drop-text h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .drop-text p {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    .badge-formats {
-      display: inline-block;
-      margin-top: 10px;
-      font-size: 0.7rem;
-      font-family: var(--font-mono);
-      padding: 4px 10px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-muted);
-    }
-
-    /* Viewport Preview Area */
-    .preview-stage {
-      display: none;
-      position: relative;
-      width: 100%;
-      min-height: 380px;
-      border-radius: 20px;
-      overflow: hidden;
-      background: #000;
-      border: 1px solid var(--border-subtle);
-      align-items: center;
-      justify-content: center;
-    }
-
-    .preview-stage.active {
-      display: flex;
-    }
-
-    #preview-img {
-      max-width: 100%;
-      max-height: 480px;
-      object-fit: contain;
-      display: block;
-    }
-
-    /* Biometric Reticle & Canvas Overlay */
-    #overlay-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    /* Scanning Laser Line Animation */
-    .scan-laser {
-      display: none;
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--primary), #ffffff, var(--primary), transparent);
-      box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
-      z-index: 10;
-      animation: laser-sweep 1.8s ease-in-out infinite alternate;
-    }
-
-    @keyframes laser-sweep {
-      0% { top: 4%; }
-      100% { top: 96%; }
-    }
-
-    /* Webcam Viewport */
-    .webcam-stage {
-      position: relative;
-      width: 100%;
-      min-height: 380px;
-      border-radius: 20px;
-      overflow: hidden;
-      background: #020617;
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #webcam-video {
-      width: 100%;
-      height: 100%;
-      max-height: 480px;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-
-    /* Futuristic HUD Reticle Corners */
-    .hud-brackets {
-      position: absolute;
-      inset: 20px;
-      pointer-events: none;
-      border: 1px dashed rgba(0, 229, 255, 0.2);
-      border-radius: 12px;
-    }
-
-    .hud-brackets::before, .hud-brackets::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-color: var(--primary);
-    }
-
-    .hud-brackets::before {
-      top: -2px;
-      left: -2px;
-      border-top: 3px solid;
-      border-left: 3px solid;
-    }
-
-    .hud-brackets::after {
-      bottom: -2px;
-      right: -2px;
-      border-bottom: 3px solid;
-      border-right: 3px solid;
-    }
-
-    .hud-target {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 120px;
-      height: 120px;
-      border: 1px solid rgba(0, 229, 255, 0.3);
-      border-radius: 50%;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hud-target::after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--primary);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--primary);
-    }
-
-    /* Action Toolbar */
-    .action-toolbar {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.25s;
-    }
-
-    .btn-primary {
-      background: var(--primary-gradient);
-      color: #000;
-      font-weight: 700;
-      box-shadow: 0 4px 20px var(--accent-glow);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(0, 229, 255, 0.4);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    /* Right Console: Biometric Intelligence & Inspection */
-    .intelligence-console {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Idle Standby Box */
-    .idle-state-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px dashed var(--border-subtle);
-      border-radius: 20px;
-      padding: 48px 24px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      flex: 1;
-    }
-
-    .radar-pulse {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 2px solid rgba(0, 229, 255, 0.3);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .radar-pulse::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 1px solid var(--primary);
-      animation: ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-    }
-
-    @keyframes ripple {
-      0% { transform: scale(0.6); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
-
-    .idle-state-card h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .idle-state-card p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      max-width: 260px;
-      line-height: 1.5;
-    }
-
-    /* Active Result Card */
-    .result-card {
-      display: none;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 24px;
-      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-card.verified {
-      border-color: rgba(16, 185, 129, 0.4);
-      box-shadow: 0 0 35px var(--success-glow);
-    }
-
-    .result-card.unmatched {
-      border-color: rgba(244, 63, 94, 0.4);
-      box-shadow: 0 0 35px var(--danger-glow);
-    }
-
-    /* Result Header Badge */
-    .result-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      margin-bottom: 20px;
-    }
-
-    .result-status-badge.verified {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid #10b981;
-      color: #34d399;
-    }
-
-    .result-status-badge.unmatched {
-      background: rgba(244, 63, 94, 0.15);
-      border: 1px solid #f43f5e;
-      color: #fb7185;
-    }
-
-    /* Identity Card */
-    .profile-banner {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 20px;
-    }
-
-    .avatar-ring {
-      width: 64px;
-      height: 64px;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 800;
-      background: var(--primary-gradient);
-      color: #000;
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-
-    .avatar-ring.unmatched {
-      background: linear-gradient(135deg, #f43f5e, #be123c);
-      color: #fff;
-    }
-
-    .profile-info h3 {
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 4px;
-    }
-
-    .profile-info p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
-
-    /* Circular Match Confidence Gauge */
-    .gauge-section {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 16px 20px;
-    }
-
-    .gauge-metric {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .gauge-metric span {
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .gauge-metric h2 {
-      font-size: 2rem;
-      font-weight: 800;
-      font-family: var(--font-mono);
-      background: linear-gradient(90deg, #00e5ff, #10b981);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .gauge-metric.unmatched h2 {
-      background: linear-gradient(90deg, #f43f5e, #fda4af);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Verification Progress Bar */
-    .confidence-meter {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .confidence-meter-fill {
-      height: 100%;
-      border-radius: 10px;
-      background: var(--primary-gradient);
-      width: 0%;
-      transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* Telemetry Diagnostics Grid */
-    .diag-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .diag-box {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 12px 14px;
-    }
-
-    .diag-box .lbl {
-      font-size: 0.7rem;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .diag-box .val {
-      font-size: 0.95rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      color: var(--text-main);
-    }
-
-    /* Audit Log / History */
-    .history-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 20px;
-      margin-top: 20px;
-    }
-
-    .history-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
-      color: var(--text-muted);
-    }
-
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .history-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      font-size: 0.8rem;
-    }
-
-    .history-item-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .history-status-indicator {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-
-    .history-status-indicator.verified { background: #10b981; }
-    .history-status-indicator.unmatched { background: #f43f5e; }
-
-    .history-name {
-      font-weight: 600;
-    }
-
-    .history-score {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--primary);
-    }
-
-    /* Modal for API Config */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-card {
-      background: #0f172a;
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 28px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-    }
-
-    .modal-card h3 {
-      font-size: 1.2rem;
-      margin-bottom: 8px;
-      color: var(--text-main);
-    }
-
-    .modal-card p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
-    .modal-card input {
-      width: 100%;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      margin-bottom: 20px;
-    }
-
-    .modal-card input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* Footer */
-    footer.app-footer {
-      margin-top: 48px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    }
-
-    @media (max-width: 992px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-      .telemetry-bar { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 600px) {
-      .app-wrapper { padding: 16px; }
-      .telemetry-bar { grid-template-columns: 1fr; }
-      header.navbar { flex-direction: column; gap: 16px; align-items: flex-start; }
-    }
-  </style>
+  <!-- PWA & Mobile App Meta Tags -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#070a12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Saviour AI">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Saviour AI">
+  <meta name="description" content="Mobile Deep Face Feature Extraction & Biometric Authentication using ArcFace 512-D ONNX.">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="bg-grid"></div>
+  <!-- Ambient Backdrop -->
+  <div class="ambient-bg">
+    <div class="ambient-grid"></div>
+  </div>
 
-  <div class="app-wrapper">
+  <!-- Mobile Application Main Shell (Full Screen on Mobile, Clean Centered on Desktop) -->
+  <div class="app-main-layout">
 
-    <!-- Navbar Header -->
-    <header class="navbar">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Mobile Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
             <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
             <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
             <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 16v1"></path>
-            <path d="M12 7v1"></path>
+            <circle cx="12" cy="12" r="3.2"></circle>
           </svg>
         </div>
         <div class="brand-text">
-          <h1>SAVIOUR BIOMETRICS AI</h1>
-          <span>Deep Face Feature Extraction · InsightFace ArcFace</span>
+          <h1>SAVIOUR AI <span class="model-tag">512-D</span></h1>
+          <div class="system-status-indicator">
+            <span class="status-dot" id="header-status-dot"></span>
+            <span id="header-status-text">CONNECTING...</span>
+          </div>
         </div>
       </div>
 
       <div class="header-actions">
-        <div class="status-pill" id="system-status-pill">
-          <span class="status-dot"></span>
-          <span id="system-status-text">CONNECTING...</span>
-        </div>
-
-        <button class="icon-btn" onclick="openApiModal()" title="Configure Backend API URL">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          API Config
+        <!-- Quick Install Button (Adds App Icon to Phone Home Screen) -->
+        <button class="btn-install-header" id="btn-install-header" onclick="triggerAppInstall()" title="Install as Mobile App">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Install App</span>
         </button>
 
-        <button class="icon-btn" id="audio-toggle" title="Toggle Sound Feedback">
-          <svg id="audio-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="btn-icon-round" id="btn-sound-toggle" title="Toggle Biometric Sound">
+          <svg id="sound-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+
+        <button class="btn-icon-round" id="btn-haptic-toggle" title="Toggle Vibration">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7 3 9 3 9h6s3-2 3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            <line x1="2" y1="8" x2="4" y2="8"></line>
+            <line x1="20" y1="8" x2="22" y2="8"></line>
+          </svg>
+        </button>
+
+        <button class="btn-icon-round" id="btn-open-settings" onclick="openSettingsModal()" title="API Config">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
       </div>
     </header>
 
-    <!-- Telemetry Stats Bar -->
-    <div class="telemetry-bar">
-      <div class="metric-card">
-        <span class="metric-label">Enrolled Target</span>
-        <div class="metric-value">Saviour Semakor <small>ID-001</small></div>
+    <!-- PWA Install Banner (Mobile Phone Banner) -->
+    <div class="pwa-install-banner" id="pwa-install-banner">
+      <div class="pwa-banner-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+          <line x1="12" y1="18" x2="12.01" y2="18"></line>
+        </svg>
+        <span>Install as Mobile App (Open from Home Screen Icon)</span>
       </div>
-      <div class="metric-card">
-        <span class="metric-label">Database Vectors</span>
-        <div class="metric-value" id="stat-encodings">451 <small>Samples</small></div>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Feature Extractor</span>
-        <div class="metric-value">ArcFace <small>512-D ONNX</small></div>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Cosine Threshold</span>
-        <div class="metric-value">0.40 <small>Max Distance</small></div>
-      </div>
+      <button class="pwa-banner-btn" id="btn-install-pwa" onclick="triggerAppInstall()">Install</button>
     </div>
 
-    <!-- Main Workspace -->
-    <div class="dashboard-grid">
+    <!-- Main Content Area -->
+    <main class="app-content">
 
-      <!-- Left Console: Capture Studio -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-            Biometric Input Studio
+      <!-- ==============================================
+           TAB 1: LIVE BIOMETRIC SCANNER (CAMERA)
+           ============================================== -->
+      <section class="app-view active" id="view-scanner">
+        <div class="scanner-view-container">
+
+          <!-- Hidden Native Mobile Camera Input Fallback -->
+          <input type="file" id="native-camera-input" accept="image/*" capture="user" style="display:none;" onchange="handleNativeCameraCapture(event)">
+
+          <div class="camera-card">
+            <!-- Camera Flash Animation -->
+            <div class="camera-flash" id="camera-flash"></div>
+
+            <!-- Live Video Element -->
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas"></canvas>
+
+            <!-- Floating Top Controls Overlay -->
+            <div class="camera-top-toolbar">
+              <div class="camera-tool-pill">
+                <span class="status-dot active" id="cam-status-dot"></span>
+                <span id="camera-mode-status">CAMERA READY</span>
+              </div>
+              <div class="camera-controls-right">
+                <button class="btn-cam-tool" id="btn-flip-camera" title="Flip Camera">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 1.942.693 3.722 1.849 5.109l-1.849 1.891h6v-6l-1.932 1.976c-.928-1.121-1.488-2.56-1.488-4.085 0-3.535 2.865-6.4 6.4-6.4s6.4 2.865 6.4 6.4-2.865 6.4-6.4 6.4c-1.525 0-2.964-.56-4.085-1.488l-1.42 1.42c1.472 1.258 3.393 2.068 5.505 2.068 4.418 0 8-3.582 8-8z"></path>
+                  </svg>
+                </button>
+                <button class="btn-cam-tool" id="btn-torch-toggle" title="Flashlight">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Face ID Reticle Overlay -->
+            <div class="face-reticle-overlay">
+              <div class="reticle-frame" id="reticle-frame">
+                <div class="reticle-corner tl"></div>
+                <div class="reticle-corner tr"></div>
+                <div class="reticle-corner bl"></div>
+                <div class="reticle-corner br"></div>
+
+                <!-- Animated Laser Sweep Line -->
+                <div class="biometric-laser" id="biometric-laser"></div>
+              </div>
+
+              <div class="reticle-prompt" id="reticle-prompt">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 8v4"></path>
+                  <path d="M12 16h.01"></path>
+                </svg>
+                <span id="prompt-text">Align Face In Viewfinder</span>
+              </div>
+            </div>
+
           </div>
 
-          <div class="mode-tabs">
-            <button class="tab-trigger active" onclick="switchMode('upload')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-              Upload Photo
-            </button>
-            <button class="tab-trigger" onclick="switchMode('webcam')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              Live Camera
-            </button>
+          <!-- Scanner Controls -->
+          <div class="scanner-controls-area">
+            <!-- Shutter Button (Snap) -->
+            <div class="shutter-button-wrap">
+              <div class="shutter-glow-ring" id="shutter-ring"></div>
+              <button class="btn-shutter-trigger" id="btn-shutter" title="Capture and Verify Face">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="3.5"></circle>
+                  <path d="M19 4h-3.5l-1-2h-5l-1 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Mode Selector: Manual Snap vs Continuous Auto-Scan -->
+            <div class="scan-mode-toggle-pill">
+              <button class="mode-pill-btn active" id="btn-mode-manual" onclick="setScanMode('manual')">Manual Snap</button>
+              <button class="mode-pill-btn" id="btn-mode-auto" onclick="setScanMode('auto')">Auto-Scan</button>
+            </div>
+
+            <div class="sub-actions-row">
+              <button class="btn-text-action" onclick="document.getElementById('native-camera-input').click()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                Snap with Mobile Camera
+              </button>
+              <button class="btn-text-action" onclick="runDemoVerification()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Simulate Demo Scan
+              </button>
+            </div>
           </div>
+
         </div>
+      </section>
 
-        <!-- UPLOAD TAB -->
-        <div class="tab-content active" id="tab-upload">
-          <div class="drop-zone" id="drop-area" onclick="document.getElementById('file-picker').click()">
-            <div class="drop-icon-wrap">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
+      <!-- ==============================================
+           TAB 2: PHOTO GALLERY / UPLOAD IMAGE
+           ============================================== -->
+      <section class="app-view" id="view-upload">
+        <div class="upload-view-container">
+
+          <input type="file" id="file-picker" accept="image/*,.heic,.heif" style="display: none;" onchange="handleFilePicked(event)">
+
+          <div class="upload-dropzone" id="upload-dropzone">
+            <!-- Idle State -->
+            <div class="dropzone-idle-content" id="dropzone-idle" onclick="document.getElementById('file-picker').click()">
+              <div class="dropzone-icon-ring">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+              <h3>Select Photo from Phone / Device</h3>
+              <p>Tap to browse gallery or drag & drop (JPEG, PNG, WEBP, HEIC)</p>
+              <span class="btn-mini" style="margin-top: 6px; background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); font-weight: 700;">Browse Files</span>
+            </div>
+
+            <!-- Preview State -->
+            <div class="preview-container" id="preview-container">
+              <img id="image-preview" alt="Biometric Target Preview">
+              <canvas id="upload-overlay-canvas"></canvas>
+
+              <!-- Upload Scanning Laser Overlay -->
+              <div class="upload-scan-overlay" id="upload-scan-overlay">
+                <div class="upload-laser-bar"></div>
+                <div class="upload-scan-text">EXTRACTING 512-D VECTORS...</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="upload-action-row">
+            <button class="btn-primary-action" id="btn-scan-upload" onclick="analyzeUploadedPhoto()" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-            </div>
-            <div class="drop-text">
-              <h3>Drop high-resolution image here</h3>
-              <p>or click to browse your local device</p>
-              <div class="badge-formats">JPEG · PNG · WEBP · HEIC · Max 15MB</div>
-            </div>
-            <input type="file" id="file-picker" accept="image/*,.heic,.heif" style="display: none;" onchange="handleFileSelected(event)">
-          </div>
-
-          <div class="preview-stage" id="preview-stage">
-            <img id="preview-img" src="" alt="Subject Preview">
-            <canvas id="overlay-canvas"></canvas>
-            <div class="scan-laser" id="scan-laser"></div>
-          </div>
-
-          <div class="action-toolbar">
-            <button class="btn btn-primary" id="btn-scan-upload" onclick="analyzeUpload()" disabled>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              Scan & Verify Identity
+              <span id="btn-scan-upload-text">Scan & Verify Identity</span>
             </button>
-            <button class="btn btn-secondary" onclick="resetUpload()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-              Clear
+            <button class="btn-secondary-action" id="btn-clear-upload" onclick="clearUploadedPhoto()" title="Clear Image">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
             </button>
           </div>
+
         </div>
+      </section>
 
-        <!-- WEBCAM TAB -->
-        <div class="tab-content" id="tab-webcam">
-          <div class="webcam-stage">
-            <video id="webcam-video" autoplay playsinline muted></video>
-            <canvas id="webcam-canvas" style="display:none;"></canvas>
-            <div class="hud-brackets"></div>
-            <div class="hud-target"></div>
-            <div class="scan-laser" id="webcam-scan-laser"></div>
+      <!-- ==============================================
+           TAB 3: ATTENDANCE & AUTO-LOG
+           ============================================== -->
+      <section class="app-view" id="view-history">
+        <div class="history-view-container">
+
+          <!-- Stats Pill Row -->
+          <div class="history-stats-pill-row">
+            <div class="stat-metric-pill">
+              <div class="num" id="stat-total-scans">0</div>
+              <div class="lbl">Total Scans</div>
+            </div>
+            <div class="stat-metric-pill">
+              <div class="num" style="color: var(--status-success);" id="stat-verified-scans">0</div>
+              <div class="lbl">Verified</div>
+            </div>
+            <div class="stat-metric-pill">
+              <div class="num" style="color: var(--status-danger);" id="stat-denied-scans">0</div>
+              <div class="lbl">Denied</div>
+            </div>
           </div>
 
-          <div class="action-toolbar">
-            <button class="btn btn-primary" id="btn-cam-start" onclick="startWebcam()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-              Start Camera
-            </button>
-            <button class="btn btn-primary" id="btn-cam-capture" onclick="captureWebcam()" style="display:none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19 4h-3.5l-1-2h-5l-1 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path></svg>
-              Capture & Verify
-            </button>
-            <button class="btn btn-secondary" id="btn-cam-stop" onclick="stopWebcam()" style="display:none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"></rect></svg>
-              Stop Camera
-            </button>
+          <!-- Toolbar & Filter -->
+          <div class="history-toolbar">
+            <div class="filter-pills">
+              <button class="filter-btn active" onclick="filterHistory('all')">All</button>
+              <button class="filter-btn" onclick="filterHistory('verified')">Pass</button>
+              <button class="filter-btn" onclick="filterHistory('unmatched')">Fail</button>
+            </div>
+
+            <div class="export-btns">
+              <button class="btn-mini" onclick="exportHistoryCSV()" title="Export CSV">CSV</button>
+              <button class="btn-mini" onclick="exportHistoryJSON()" title="Export JSON">JSON</button>
+              <button class="btn-mini" onclick="clearHistory()" title="Clear Audit Log">Clear</button>
+            </div>
           </div>
+
+          <!-- List of Session Records -->
+          <div class="history-items-list" id="history-items-list">
+            <div class="history-empty-state">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <p style="margin-top: 8px; font-size: 0.8rem;">No authentication scans recorded yet.</p>
+            </div>
+          </div>
+
         </div>
+      </section>
 
-      </div>
+      <!-- ==============================================
+           TAB 4: IDENTITY TARGET & MODEL SPECS
+           ============================================== -->
+      <section class="app-view" id="view-telemetry">
+        <div class="telemetry-view-container">
 
-      <!-- Right Console: Biometric Intelligence -->
-      <div class="panel intelligence-console">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <!-- Enrolled Target Profile Card -->
+          <div class="target-hero-card">
+            <div class="target-profile-row">
+              <div class="target-big-avatar">S</div>
+              <div class="target-details">
+                <h2>Saviour Semakor</h2>
+                <p>TARGET ID: #SVM-001</p>
+                <span class="target-status-pill">
+                  <span class="status-dot active"></span>
+                  Primary Authorized Subject
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Telemetry Spec Grid -->
+          <div class="telemetry-grid">
+            <div class="telemetry-item-box">
+              <div class="label">Database Vectors</div>
+              <div class="value" id="telemetry-vectors">451 Samples</div>
+              <div class="sub">Trained ArcFace Embeddings</div>
+            </div>
+
+            <div class="telemetry-item-box">
+              <div class="label">Feature Extractor</div>
+              <div class="value">ArcFace 512-D</div>
+              <div class="sub">Deep Neural Network ONNX</div>
+            </div>
+
+            <div class="telemetry-item-box">
+              <div class="label">Decision Threshold</div>
+              <div class="value">&le; 0.4000</div>
+              <div class="sub">Max Cosine Distance</div>
+            </div>
+
+            <div class="telemetry-item-box">
+              <div class="label">Server Ping</div>
+              <div class="value" id="telemetry-ping">-- ms</div>
+              <div class="sub">Render Cloud Latency</div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <button class="btn-primary-action" onclick="openSettingsModal()" style="margin-top: 6px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
             </svg>
-            Biometric Intelligence
-          </div>
+            Configure Backend Endpoint
+          </button>
+
         </div>
+      </section>
 
-        <!-- Standby State -->
-        <div class="idle-state-card" id="idle-card">
-          <div class="radar-pulse">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
-          </div>
-          <h4>System Armed & Ready</h4>
-          <p>Awaiting facial image capture. Upload an image or use the camera to perform deep biometric authentication.</p>
+    </main>
+
+    <!-- ==============================================
+         VERIFICATION RESULT BOTTOM SHEET (PASS / FAIL / JSON)
+         ============================================== -->
+    <div class="result-bottom-sheet" id="result-bottom-sheet">
+      <div class="sheet-drag-handle" onclick="dismissResultSheet()"></div>
+
+      <div class="result-header-row">
+        <div class="result-badge pass" id="result-badge">
+          <span class="status-dot active" id="result-badge-dot"></span>
+          <span id="result-badge-text">BIOMETRIC MATCH CONFIRMED</span>
         </div>
-
-        <!-- Active Result Card -->
-        <div class="result-card" id="result-card">
-          <div class="result-status-badge verified" id="status-badge">
-            <span class="status-dot"></span>
-            <span id="badge-text">IDENTITY CONFIRMED</span>
-          </div>
-
-          <div class="profile-banner">
-            <div class="avatar-ring" id="avatar-ring">S</div>
-            <div class="profile-info">
-              <h3 id="subject-name">Saviour Semakor</h3>
-              <p id="subject-meta">AUTHORIZED PRINCIPAL · ID: #SVM-451</p>
-            </div>
-          </div>
-
-          <div class="gauge-section" id="gauge-container">
-            <div class="gauge-metric" id="gauge-metric">
-              <span>Match Confidence</span>
-              <h2 id="conf-val">99.4%</h2>
-            </div>
-            <div class="gauge-metric" style="text-align: right;">
-              <span>Authentication</span>
-              <h4 id="auth-result-label" style="color: #34d399; font-family: var(--font-mono); font-size: 1.1rem; margin-top: 4px;">PASS</h4>
-            </div>
-          </div>
-
-          <div class="confidence-meter">
-            <div class="confidence-meter-fill" id="meter-fill"></div>
-          </div>
-
-          <div class="diag-grid" style="margin-top: 20px;">
-            <div class="diag-box">
-              <div class="lbl">Cosine Distance</div>
-              <div class="val" id="val-distance">0.0061</div>
-            </div>
-            <div class="diag-box">
-              <div class="lbl">Detector Score</div>
-              <div class="val" id="val-det-score">84.2%</div>
-            </div>
-            <div class="diag-box">
-              <div class="lbl">Database Samples</div>
-              <div class="val" id="val-samples">451 Vectors</div>
-            </div>
-            <div class="diag-box">
-              <div class="lbl">Decision Threshold</div>
-              <div class="val">&le; 0.4000</div>
-            </div>
-          </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn-json-pill" onclick="viewCurrentJsonResponse()" title="Inspect Raw JSON Response">
+            { } JSON
+          </button>
+          <button class="btn-close-sheet" onclick="dismissResultSheet()">&times;</button>
         </div>
-
-        <!-- History Audit Log -->
-        <div class="history-card">
-          <div class="history-header">
-            <span>Session Audit Log</span>
-            <span id="log-count">0 Scans</span>
-          </div>
-          <div class="history-list" id="history-items">
-            <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; padding: 12px;">
-              No scans performed in this session yet.
-            </div>
-          </div>
-        </div>
-
       </div>
 
-    </div>
+      <div class="result-subject-section">
+        <div class="result-avatar-halo" id="result-avatar-halo">S</div>
+        <div class="result-subject-info">
+          <h3 id="result-subject-name">Saviour Semakor</h3>
+          <p id="result-subject-meta">AUTHORIZED SUBJECT · ENROLLED CLASS</p>
+        </div>
+      </div>
 
-    <!-- API Config Modal -->
-    <div class="modal-overlay" id="api-modal">
-      <div class="modal-card">
-        <h3>Backend API Configuration</h3>
-        <p>Set your cloud AI backend URL (e.g. from Render or localtunnel). Leave blank if running on the same domain.</p>
-        <input type="text" id="api-url-input" placeholder="https://your-backend-api.onrender.com" />
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button class="btn btn-secondary" onclick="closeApiModal()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveApiUrl()">Save & Connect</button>
+      <!-- Confidence Bar -->
+      <div class="confidence-bar-container">
+        <div class="confidence-bar-fill" id="confidence-bar-fill"></div>
+      </div>
+
+      <div class="result-telemetry-row">
+        <div class="result-telemetry-item">
+          <div class="t-val" id="result-conf-val">99.4%</div>
+          <div class="t-lbl">Confidence</div>
+        </div>
+        <div class="result-telemetry-item">
+          <div class="t-val" id="result-dist-val">0.2410</div>
+          <div class="t-lbl">Cosine Dist</div>
+        </div>
+        <div class="result-telemetry-item">
+          <div class="t-val" id="result-latency-val">180ms</div>
+          <div class="t-lbl">Inference</div>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="app-footer">
-      <span>Powered by InsightFace ArcFace Deep Feature Embeddings</span>
-      <span>&bull;</span>
-      <span>451 Trained Vectors</span>
-      <span>&bull;</span>
-      <span id="api-display-label">API: Local Server</span>
-    </footer>
+    <!-- ==============================================
+         FIXED BOTTOM NAVIGATION BAR
+         ============================================== -->
+    <nav class="app-bottom-nav">
+      <button class="nav-tab-item active" onclick="switchNavTab('scanner')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+        <span>Scanner</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="switchNavTab('upload')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>Gallery</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="switchNavTab('history')" style="position: relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Attendance</span>
+        <span class="nav-count-badge" id="badge-history-count" style="display: none;">0</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="switchNavTab('telemetry')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Target</span>
+      </button>
+    </nav>
 
   </div>
 
-  <script>
-    let soundEnabled = true;
-    let webcamStream = null;
-    let audioCtx = null;
-    let selectedFile = null;
+  <!-- Raw JSON Response Inspector Modal -->
+  <div class="modal-backdrop" id="modal-json-viewer">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <h3 style="margin: 0; font-size: 1rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          Backend JSON Response
+        </h3>
+        <button class="btn-close-sheet" onclick="closeJsonViewer()">&times;</button>
+      </div>
 
-    // Smart API Base Resolver (Works with Vercel, Render, or Localhost)
-    function getApiBase() {
-      const saved = localStorage.getItem('SAVIOUR_API_BASE');
-      if (saved !== null && saved.trim() !== '') return saved.trim().replace(/\/+$/, '');
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return '';
-      }
-      return 'https://saviour-face-recognition.onrender.com';
-    }
+      <p style="margin-bottom: 10px; font-size: 0.72rem; color: var(--text-muted);">
+        Direct JSON payload returned by InsightFace ArcFace 512-D ONNX model:
+      </p>
 
-    function openApiModal() {
-      document.getElementById('api-url-input').value = getApiBase();
-      document.getElementById('api-modal').classList.add('active');
-    }
+      <pre class="json-code-box" id="json-code-box">{}</pre>
 
-    function closeApiModal() {
-      document.getElementById('api-modal').classList.remove('active');
-    }
+      <div class="modal-btn-row" style="margin-top: 14px;">
+        <button class="btn-mini" onclick="copyJsonToClipboard()" id="btn-copy-json" style="padding: 8px 14px; font-size: 0.75rem;">
+          Copy JSON
+        </button>
+        <button class="btn-primary-action" onclick="closeJsonViewer()" style="width: auto; padding: 0 20px; height: 38px;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
 
-    function saveApiUrl() {
-      const val = document.getElementById('api-url-input').value.trim();
-      localStorage.setItem('SAVIOUR_API_BASE', val);
-      closeApiModal();
-      checkServerStatus();
-    }
-
-    // Web Audio Synthesizer
-    function playBeep(type) {
-      if (!soundEnabled) return;
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        const now = audioCtx.currentTime;
-
-        if (type === 'match') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(587.33, now);
-          osc.frequency.setValueAtTime(880, now + 0.1);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-          osc.start(now);
-          osc.stop(now + 0.35);
-        } else if (type === 'unmatched') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.setValueAtTime(160, now + 0.15);
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-          osc.start(now);
-          osc.stop(now + 0.4);
-        } else if (type === 'scan') {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(1200, now);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-          osc.start(now);
-          osc.stop(now + 0.08);
-        }
-      } catch (e) {
-        console.warn('Audio not available', e);
-      }
-    }
-
-    // Toggle Audio
-    document.getElementById('audio-toggle').addEventListener('click', () => {
-      soundEnabled = !soundEnabled;
-      const icon = document.getElementById('audio-icon');
-      if (soundEnabled) {
-        icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
-        playBeep('scan');
-      } else {
-        icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
-      }
-    });
-
-    // Initial Status Check
-    async function checkServerStatus() {
-      const base = getApiBase();
-      const displayLabel = document.getElementById('api-display-label');
-      displayLabel.textContent = base ? `API: ${base}` : 'API: Connected';
-
-      try {
-        const res = await fetch(`${base}/status`);
-        const data = await res.json();
-        const text = document.getElementById('system-status-text');
-        const pill = document.getElementById('system-status-pill');
-        if (data.status === 'ready') {
-          text.textContent = `SYSTEM ACTIVE · ${data.total_encodings} VECTORS`;
-          pill.style.borderColor = '#10b981';
-          document.getElementById('stat-encodings').innerHTML = `${data.total_encodings} <small>Samples</small>`;
-        } else {
-          text.textContent = 'DATABASE OFFLINE';
-          pill.style.borderColor = '#f43f5e';
-        }
-      } catch (e) {
-        document.getElementById('system-status-text').textContent = base ? 'API DISCONNECTED' : 'SERVER OFFLINE';
-        document.getElementById('system-status-pill').style.borderColor = '#f43f5e';
-      }
-    }
-    checkServerStatus();
-
-    // Tab Switching
-    function switchMode(mode) {
-      document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      document.getElementById('tab-' + mode).classList.add('active');
-
-      if (mode !== 'webcam') {
-        stopWebcam();
-      }
-    }
-
-    // Drag and Drop Handling
-    const dropArea = document.getElementById('drop-area');
-    ['dragenter', 'dragover'].forEach(name => {
-      dropArea.addEventListener(name, (e) => {
-        e.preventDefault();
-        dropArea.classList.add('dragover');
-      });
-    });
-    ['dragleave', 'drop'].forEach(name => {
-      dropArea.addEventListener(name, (e) => {
-        e.preventDefault();
-        dropArea.classList.remove('dragover');
-      });
-    });
-    dropArea.addEventListener('drop', (e) => {
-      const file = e.dataTransfer.files[0];
-      if (file && (file.type.startsWith('image/') || file.name.endsWith('.heic') || file.name.endsWith('.heif'))) {
-        loadImage(file);
-      }
-    });
-
-    function handleFileSelected(e) {
-      const file = e.target.files[0];
-      if (file) loadImage(file);
-    }
-
-    function loadImage(file) {
-      selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = document.getElementById('preview-img');
-        img.src = e.target.result;
-        img.onload = () => {
-          document.getElementById('drop-area').style.display = 'none';
-          document.getElementById('preview-stage').classList.add('active');
-          document.getElementById('btn-scan-upload').disabled = false;
-          clearCanvas();
-        };
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function resetUpload() {
-      selectedFile = null;
-      document.getElementById('file-picker').value = '';
-      document.getElementById('preview-img').src = '';
-      document.getElementById('preview-stage').classList.remove('active');
-      document.getElementById('drop-area').style.display = 'flex';
-      document.getElementById('btn-scan-upload').disabled = true;
-      clearCanvas();
-      hideResultCard();
-    }
-
-    function clearCanvas() {
-      const canvas = document.getElementById('overlay-canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // Face Box Bounding Reticle Drawing
-    function drawFaceReticle(bbox, imgWidth, imgHeight) {
-      const canvas = document.getElementById('overlay-canvas');
-      const img = document.getElementById('preview-img');
-      canvas.width = img.clientWidth;
-      canvas.height = img.clientHeight;
-
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (!bbox) return;
-
-      const scaleX = canvas.width / imgWidth;
-      const scaleY = canvas.height / imgHeight;
-
-      const x = bbox[0] * scaleX;
-      const y = bbox[1] * scaleY;
-      const w = (bbox[2] - bbox[0]) * scaleX;
-      const h = (bbox[3] - bbox[1]) * scaleY;
-
-      ctx.strokeStyle = '#00e5ff';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = '#00e5ff';
-      ctx.shadowBlur = 12;
-
-      const cornerLen = Math.min(24, w / 4);
-
-      ctx.beginPath();
-      ctx.moveTo(x, y + cornerLen);
-      ctx.lineTo(x, y);
-      ctx.lineTo(x + cornerLen, y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x + w - cornerLen, y);
-      ctx.lineTo(x + w, y);
-      ctx.lineTo(x + w, y + cornerLen);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x, y + h - cornerLen);
-      ctx.lineTo(x, y + h);
-      ctx.lineTo(x + cornerLen, y + h);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x + w - cornerLen, y + h);
-      ctx.lineTo(x + w, y + h);
-      ctx.lineTo(x + w, y + h - cornerLen);
-      ctx.stroke();
-
-      ctx.fillStyle = 'rgba(0, 229, 255, 0.9)';
-      ctx.font = 'bold 11px JetBrains Mono, monospace';
-      ctx.fillText('TARGET LOCK: 512-D VECTOR', x + 4, y - 6);
-    }
-
-    // Upload Scan
-    async function analyzeUpload() {
-      if (!selectedFile) return;
-      startScanAnimation('upload');
-
-      const formData = new FormData();
-      formData.append('image', selectedFile);
-
-      try {
-        const base = getApiBase();
-        const res = await fetch(`${base}/recognize`, { method: 'POST', body: formData });
-        const data = await res.json();
-        stopScanAnimation('upload');
-        renderResult(data);
-
-        if (data.bbox && data.image_size) {
-          drawFaceReticle(data.bbox, data.image_size[0], data.image_size[1]);
-        }
-      } catch (e) {
-        stopScanAnimation('upload');
-        alert('Server analysis error: ' + e.message);
-      }
-    }
-
-    // Webcam Controls
-    async function startWebcam() {
-      try {
-        webcamStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
-        });
-        const video = document.getElementById('webcam-video');
-        video.srcObject = webcamStream;
-        document.getElementById('btn-cam-start').style.display = 'none';
-        document.getElementById('btn-cam-capture').style.display = 'inline-flex';
-        document.getElementById('btn-cam-stop').style.display = 'inline-flex';
-        playBeep('scan');
-      } catch (err) {
-        alert('Could not access webcam: ' + err.message);
-      }
-    }
-
-    function stopWebcam() {
-      if (webcamStream) {
-        webcamStream.getTracks().forEach(t => t.stop());
-        webcamStream = null;
-      }
-      document.getElementById('webcam-video').srcObject = null;
-      document.getElementById('btn-cam-start').style.display = 'inline-flex';
-      document.getElementById('btn-cam-capture').style.display = 'none';
-      document.getElementById('btn-cam-stop').style.display = 'none';
-    }
-
-    async function captureWebcam() {
-      const video = document.getElementById('webcam-video');
-      const canvas = document.getElementById('webcam-canvas');
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-
-      const ctx = canvas.getContext('2d');
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const base64Img = canvas.toDataURL('image/jpeg', 0.92);
-
-      startScanAnimation('webcam');
-
-      try {
-        const base = getApiBase();
-        const res = await fetch(`${base}/recognize_base64`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64Img })
-        });
-        const data = await res.json();
-        stopScanAnimation('webcam');
-        renderResult(data);
-      } catch (e) {
-        stopScanAnimation('webcam');
-        alert('Webcam analysis error: ' + e.message);
-      }
-    }
-
-    // Animation Helpers
-    function startScanAnimation(mode) {
-      playBeep('scan');
-      if (mode === 'upload') {
-        document.getElementById('scan-laser').style.display = 'block';
-        document.getElementById('btn-scan-upload').disabled = true;
-      } else {
-        document.getElementById('webcam-scan-laser').style.display = 'block';
-      }
-    }
-
-    function stopScanAnimation(mode) {
-      if (mode === 'upload') {
-        document.getElementById('scan-laser').style.display = 'none';
-        document.getElementById('btn-scan-upload').disabled = false;
-      } else {
-        document.getElementById('webcam-scan-laser').style.display = 'none';
-      }
-    }
-
-    // Result Presentation
-    function renderResult(data) {
-      document.getElementById('idle-card').style.display = 'none';
-      const card = document.getElementById('result-card');
-      card.style.display = 'block';
-
-      const isMatch = !!data.matched;
-      playBeep(isMatch ? 'match' : 'unmatched');
-
-      card.className = 'result-card ' + (isMatch ? 'verified' : 'unmatched');
-
-      const badge = document.getElementById('status-badge');
-      badge.className = 'result-status-badge ' + (isMatch ? 'verified' : 'unmatched');
-      document.getElementById('badge-text').textContent = isMatch ? 'BIOMETRIC MATCH CONFIRMED' : 'SUBJECT UNRECOGNIZED';
-
-      const name = data.name || 'Unknown';
-      document.getElementById('subject-name').textContent = name;
-      document.getElementById('subject-meta').textContent = isMatch 
-        ? 'AUTHORIZED SUBJECT · ENROLLED CLASS' 
-        : 'UNAUTHORIZED · NOT IN DATABASE';
-
-      const avatar = document.getElementById('avatar-ring');
-      avatar.textContent = name.charAt(0);
-      avatar.className = 'avatar-ring ' + (isMatch ? '' : 'unmatched');
-
-      const conf = (data.confidence !== undefined) ? data.confidence : 0;
-      document.getElementById('conf-val').textContent = conf.toFixed(1) + '%';
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="modal-settings">
+    <div class="modal-sheet">
+      <h3>Backend AI Configuration</h3>
+      <p>Configure the Python Flask AI backend endpoint URL (hosted on Render or local machine).</p>
       
-      const gaugeMetric = document.getElementById('gauge-metric');
-      gaugeMetric.className = 'gauge-metric ' + (isMatch ? '' : 'unmatched');
+      <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px;">API Endpoint URL</label>
+      <input type="text" class="input-field-custom" id="input-api-url" placeholder="https://saviour-face-recognition.onrender.com">
 
-      const passLabel = document.getElementById('auth-result-label');
-      passLabel.textContent = isMatch ? 'PASS' : 'FAIL';
-      passLabel.style.color = isMatch ? '#34d399' : '#f43f5e';
+      <div class="modal-btn-row">
+        <button class="btn-secondary-action" onclick="closeSettingsModal()" style="width: auto; padding: 0 16px;">Cancel</button>
+        <button class="btn-primary-action" onclick="saveSettings()" style="width: auto; padding: 0 20px;">Save & Connect</button>
+      </div>
+    </div>
+  </div>
 
-      const meterFill = document.getElementById('meter-fill');
-      meterFill.style.width = '0%';
-      setTimeout(() => {
-        meterFill.style.width = Math.min(100, Math.max(0, conf)) + '%';
-      }, 50);
+  <!-- iOS Add To Home Screen Helper Modal -->
+  <div class="modal-backdrop" id="modal-ios-install">
+    <div class="modal-sheet">
+      <h3>Install as Mobile App</h3>
+      <p>To run Saviour Face Recognition full-screen from your phone icon:</p>
+      <ol style="font-size: 0.8rem; color: #cbd5e1; margin-left: 20px; line-height: 1.6; margin-bottom: 16px;">
+        <li>Tap the <strong>Share</strong> button <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> in Safari.</li>
+        <li>Scroll down and select <strong>"Add to Home Screen"</strong>.</li>
+        <li>Tap <strong>Add</strong> in the top-right corner.</li>
+      </ol>
+      <div class="modal-btn-row">
+        <button class="btn-primary-action" onclick="closeIosInstallModal()" style="width: 100%;">Got it!</button>
+      </div>
+    </div>
+  </div>
 
-      document.getElementById('val-distance').textContent = data.cosine_dist !== undefined ? data.cosine_dist.toFixed(4) : '--';
-      document.getElementById('val-det-score').textContent = data.det_score !== undefined ? (data.det_score + '%') : '--';
-      document.getElementById('val-samples').textContent = (data.total_encodings || 451) + ' Vectors';
+  <!-- Live Toast Notification (Auto-Log & Alerts) -->
+  <div class="live-toast" id="live-toast">
+    <span class="toast-dot"></span>
+    <span id="toast-message">Biometric scan auto-logged</span>
+  </div>
 
-      addAuditHistory(name, conf, isMatch);
-    }
-
-    function hideResultCard() {
-      document.getElementById('result-card').style.display = 'none';
-      document.getElementById('idle-card').style.display = 'flex';
-    }
-
-    let scanCount = 0;
-    function addAuditHistory(name, score, isMatch) {
-      scanCount++;
-      document.getElementById('log-count').textContent = `${scanCount} Scans`;
-
-      const list = document.getElementById('history-items');
-      if (scanCount === 1) list.innerHTML = '';
-
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const item = document.createElement('div');
-      item.className = 'history-item';
-      item.innerHTML = `
-        <div class="history-item-left">
-          <span class="history-status-indicator ${isMatch ? 'verified' : 'unmatched'}"></span>
-          <span class="history-name">${name}</span>
-          <span style="font-size:0.7rem; color: var(--text-muted); font-family: var(--font-mono);">${time}</span>
-        </div>
-        <div class="history-score">${score.toFixed(1)}%</div>
-      `;
-      list.prepend(item);
-    }
-  </script>
+  <!-- Main JavaScript Logic Engine -->
+  <script src="app.js"></script>
 </body>
 </html>
