@@ -1,9 +1,24 @@
 {
   "version": 2,
-  "rewrites": [
+  "name": "saviour-face-recognition-mobile-pwa",
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "^/sw.js$",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate"
+      },
+      "dest": "/sw.js"
+    },
+    {
+      "src": "^/manifest.webmanifest$",
+      "headers": {
+        "content-type": "application/manifest+json; charset=utf-8"
+      },
+      "dest": "/manifest.webmanifest"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
