@@ -1,3 +1,4 @@
+/** Saviour AI Mobile App v2.1 Deployment: 2026-11-22 14:40:46 UTC **/
 /**
  * Saviour AI - Mobile Biometric Face ID Engine (v3.0)
  * Clean Mobile App Interface: Direct Access, Snap/Auto-Scan, Upload, JSON, Pass/Fail, Auto-Log, PWA
@@ -522,7 +523,7 @@ async function processBiometricScan(fileOrBlob, source = 'camera') {
     console.error('Recognition error:', err);
     cleanupScanState();
     showLiveToast(`Server connection issue (${err.message})`);
-    if (promptText) promptText.textContent = 'Server response error · Tap Demo Scan';
+    if (promptText) promptText.textContent = 'Server response error Â· Tap Demo Scan';
   }
 }
 
@@ -579,7 +580,7 @@ function drawFaceBoundingBox(canvasId, bbox, imageSize) {
 
   ctx.fillStyle = 'rgba(0, 242, 254, 0.9)';
   ctx.font = 'bold 11px -apple-system, monospace';
-  ctx.fillText('TARGET LOCK · 512-D VECTOR', bx + 4, by - 6);
+  ctx.fillText('TARGET LOCK Â· 512-D VECTOR', bx + 4, by - 6);
 
   setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 4000);
 }
@@ -608,10 +609,10 @@ function renderVerificationResult(data, latencyMs, source) {
   // PASS
   if (isMatch) {
     if (badge) badge.className = 'result-badge pass';
-    if (badgeText) badgeText.textContent = 'IDENTITY VERIFIED · PASS';
+    if (badgeText) badgeText.textContent = 'IDENTITY VERIFIED Â· PASS';
     if (halo) { halo.className = 'result-avatar-halo'; halo.textContent = 'S'; }
     if (subjName) subjName.textContent = name;
-    if (subjMeta) subjMeta.textContent = 'AUTHORIZED PRINCIPAL · ENROLLED CLASS';
+    if (subjMeta) subjMeta.textContent = 'AUTHORIZED PRINCIPAL Â· ENROLLED CLASS';
     if (barFill) barFill.className = 'confidence-bar-fill';
     if (reticle) { reticle.classList.remove('fail'); reticle.classList.add('pass'); }
     if (promptText) promptText.textContent = `Match Verified: ${name}`;
@@ -622,10 +623,10 @@ function renderVerificationResult(data, latencyMs, source) {
   // FAIL
   else {
     if (badge) badge.className = 'result-badge fail';
-    if (badgeText) badgeText.textContent = hasError ? (data.error || 'NO FACE DETECTED') : 'ACCESS DENIED · FAIL';
+    if (badgeText) badgeText.textContent = hasError ? (data.error || 'NO FACE DETECTED') : 'ACCESS DENIED Â· FAIL';
     if (halo) { halo.className = 'result-avatar-halo fail'; halo.textContent = '?'; }
     if (subjName) subjName.textContent = hasError ? 'Unrecognized Sample' : name;
-    if (subjMeta) subjMeta.textContent = hasError ? 'NO VALID FACE DETECTED' : 'UNAUTHORIZED · NOT IN DATABASE';
+    if (subjMeta) subjMeta.textContent = hasError ? 'NO VALID FACE DETECTED' : 'UNAUTHORIZED Â· NOT IN DATABASE';
     if (barFill) barFill.className = 'confidence-bar-fill fail';
     if (reticle) { reticle.classList.remove('pass'); reticle.classList.add('fail'); }
     if (promptText) promptText.textContent = 'Subject Unrecognized';
@@ -781,12 +782,12 @@ function renderHistoryView(filter = 'all') {
         </div>
         <div class="history-meta">
           <h4>${item.name}</h4>
-          <span>${item.timestamp} · Latency ${item.latencyMs}ms</span>
+          <span>${item.timestamp} Â· Latency ${item.latencyMs}ms</span>
         </div>
       </div>
       <div class="history-card-right">
         <span class="badge-tag ${item.isMatch ? 'pass' : 'fail'}">${item.isMatch ? 'PASS' : 'FAIL'}</span>
-        <div class="history-conf">${item.confidence.toFixed(1)}% · <span style="color:var(--accent-cyan);">{ } JSON</span></div>
+        <div class="history-conf">${item.confidence.toFixed(1)}% Â· <span style="color:var(--accent-cyan);">{ } JSON</span></div>
       </div>
     </div>
   `).join('');
@@ -945,7 +946,7 @@ async function checkBackendHealth() {
       const data = await res.json();
       if (dot) dot.className = 'status-dot active';
       const vectorCount = data.total_encodings || 451;
-      if (text) text.textContent = `SYSTEM ACTIVE · ${vectorCount} VECTORS`;
+      if (text) text.textContent = `SYSTEM ACTIVE Â· ${vectorCount} VECTORS`;
       if (vectorsEl) vectorsEl.textContent = `${vectorCount} Samples`;
       if (pingEl) pingEl.textContent = `${ping} ms`;
     } else {
